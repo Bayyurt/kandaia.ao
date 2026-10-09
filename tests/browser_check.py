@@ -9,7 +9,7 @@ import os
 from pathlib import Path
 import threading
 from urllib.parse import urljoin
-from playwright.sync_api import sync_playwright
+from playwright.sync_api import sync_playwright, expect
 
 ROOT = Path(__file__).resolve().parents[1]
 ROUTES = ['/', '/aprender/', '/experimentar/', '/comunidade/', '/solucoes/', '/aprender/aprender-com-ia/', '/aprender/escrever-melhor/', '/aprender/verificar-respostas/']
@@ -56,7 +56,7 @@ def check(url, screenshots):
         page.locator('#b-pt').click()
         context.grant_permissions(['clipboard-read','clipboard-write'])
         page.locator('#copy-prompt').click()
-        assert 'Copiado.' in page.locator('#copy-status').inner_text()
+        expect(page.locator('#copy-status')).to_contain_text('Copiado.')
         assert page.evaluate('navigator.clipboard.readText()')==page.locator('#prompt-result').inner_text()
         page.evaluate("Object.defineProperty(navigator,'clipboard',{value:undefined,configurable:true})")
         page.locator('#copy-prompt').click()
