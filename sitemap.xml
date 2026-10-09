@@ -1,4 +1,11 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
-  <url><loc>https://kandaia.ao/</loc><lastmod>2026-10-09</lastmod><changefreq>monthly</changefreq><priority>1.0</priority></url>
+  <url><loc>https://kandaia.ao/</loc><lastmod>2026-10-09</lastmod></url>
+  <url><loc>https://kandaia.ao/aprender/</loc><lastmod>2026-10-09</lastmod></url>
+  <url><loc>https://kandaia.ao/aprender/aprender-com-ia/</loc><lastmod>2026-10-09</lastmod></url>
+  <url><loc>https://kandaia.ao/aprender/escrever-melhor/</loc><lastmod>2026-10-09</lastmod></url>
+  <url><loc>https://kandaia.ao/aprender/verificar-respostas/</loc><lastmod>2026-10-09</lastmod></url>
+  <url><loc>https://kandaia.ao/comunidade/</loc><lastmod>2026-10-09</lastmod></url>
+  <url><loc>https://kandaia.ao/experimentar/</loc><lastmod>2026-10-09</lastmod></url>
+  <url><loc>https://kandaia.ao/solucoes/</loc><lastmod>2026-10-09</lastmod></url>
 </urlset>

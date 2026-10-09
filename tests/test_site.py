@@ -3,70 +3,102 @@ import re
 import unittest
 from pathlib import Path
 from html.parser import HTMLParser
+from urllib.parse import urlsplit
+import xml.etree.ElementTree as ET
 
 ROOT = Path(__file__).resolve().parents[1]
+ROUTES = ['/', '/aprender/', '/experimentar/', '/comunidade/', '/solucoes/', '/aprender/aprender-com-ia/', '/aprender/escrever-melhor/', '/aprender/verificar-respostas/']
 
 class Structure(HTMLParser):
     def __init__(self):
         super().__init__()
-        self.ids = []
-        self.links = []
-        self.guides = []
+        self.ids, self.links, self.assets = [], [], []
     def handle_starttag(self, tag, attrs):
         a = dict(attrs)
         if 'id' in a:
             self.ids.append(a['id'])
         if tag == 'a':
             self.links.append(a.get('href', ''))
-        if tag == 'details' and a.get('id', '').startswith('guia-'):
-            self.guides.append(a['id'])
+        if tag in ('script', 'img') and a.get('src'):
+            self.assets.append(a['src'])
+        if tag == 'link' and a.get('href', '').startswith('/'):
+            self.assets.append(a['href'])
 
-class EducationFirstSite(unittest.TestCase):
-    def setUp(self):
-        self.html = (ROOT / 'index.html').read_text()
-        self.dom = Structure()
-        self.dom.feed(self.html)
-    def test_real_beginner_guides_available_without_signup(self):
-        self.assertEqual(len(self.dom.guides), 3)
-        for key in ['comecar', 'aprender', 'experimentar', 'comunidade']:
-            self.assertIn(key, self.dom.ids)
-    def test_instagram_is_real_participation_destination(self):
-        self.assertIn('https://www.instagram.com/kanda.ia.ao/', self.dom.links)
-        self.assertIn('mailto:info@kandaia.ao?subject=', self.html)
-        self.assertNotIn('href="https://discord.gg/', self.html)
-    def test_no_dead_links_or_founder_or_whatsapp_promises(self):
-        self.assertNotIn('#', self.dom.links)
-        self.assertNotIn('fundador', self.dom.ids)
-        self.assertNotIn('Bedri Bayyurt', self.html)
-        self.assertNotIn('Diagnóstico grátis', self.html)
-        self.assertNotIn('wa.me/', self.html)
-        self.assertEqual(len(self.dom.ids), len(set(self.dom.ids)))
-        for href in self.dom.links:
-            if href.startswith('#'):
-                self.assertIn(href[1:], self.dom.ids)
-    def test_prompt_builder_has_accessible_inputs_and_result(self):
-        for key in ['prompt-goal', 'prompt-context', 'prompt-format', 'prompt-result', 'copy-prompt', 'copy-status']:
-            self.assertIn(key, self.dom.ids)
-        self.assertIn('aria-live="polite"', self.html)
-        self.assertNotIn('eval(', self.html)
-        self.assertNotIn('fetch(', self.html)
-    def test_organization_metadata_is_valid_json(self):
-        block = re.search(r'<script type="application/ld\+json">(.*?)</script>', self.html, re.S)
-        self.assertIsNotNone(block)
-        metadata = json.loads(block.group(1))
-        self.assertEqual(metadata['@context'], 'https://schema.org')
-        self.assertEqual(metadata['@type'], 'Organization')
-        self.assertEqual(metadata['url'], 'https://kandaia.ao/')
-        self.assertEqual(metadata['email'], 'info@kandaia.ao')
-        self.assertEqual(metadata['sameAs'], ['https://www.instagram.com/kanda.ia.ao/'])
-
-    def test_bilingual_and_existing_assets_preserved(self):
-        self.assertIn('lang="pt-AO"', self.html)
-        self.assertIn('id="b-en"', self.html)
-        self.assertIn('id="b-pt"', self.html)
-        self.assertIn('data:font/woff2;base64,', self.html)
-        self.assertIn('prefers-reduced-motion', self.html)
-        self.assertIn('https://kandaia.ao/', self.html)
+class MultipageSite(unittest.TestCase):
+    def test_spaces_and_guides_have_real_pages(self):
+        for route in ROUTES:
+            with self.subTest(route=route):
+                path = ROOT / route.strip('/') / 'index.html'
+                self.assertTrue(path.is_file(), route)
+                html = path.read_text()
+                self.assertIn('<main', html)
+                self.assertIn('id="b-en"', html)
+                self.assertIn('lang="pt-AO"', html)
+                self.assertIn('https://kandaia.ao' + route, html)
+    def test_home_is_gateway_not_full_presentation(self):
+        html = (ROOT / 'index.html').read_text()
+        self.assertNotIn('id="prompt-goal"', html)
+        self.assertNotIn('class="guide-body"', html)
+        nav = re.search(r'<nav.*?</nav>', html, re.S).group(0)
+        for route in ['/aprender/', '/experimentar/', '/comunidade/']:
+            self.assertIn('href="' + route + '"', nav)
+        self.assertNotIn('href="#', nav)
+    def test_original_neon_visual_identity_is_restored(self):
+        css = ROOT / 'assets/site.css'
+        self.assertTrue(css.exists())
+        text = css.read_text()
+        for marker in ['.scanlines', '.vignette', '.glitch', '.holo', '.floor', '.term', '#00f0ff', '#ff2bd6', 'data:font/woff2;base64,', 'prefers-reduced-motion']:
+            self.assertIn(marker, text)
+        html = (ROOT / 'index.html').read_text()
+        self.assertIn('class="scanlines"', html)
+        self.assertIn('class="glitch-wrap"', html)
+        self.assertIn('class="floor"', html)
+    def test_all_internal_links_assets_and_metadata_are_valid(self):
+        for route in ROUTES:
+            path = ROOT / route.strip('/') / 'index.html'
+            self.assertTrue(path.exists(), route)
+            html = path.read_text()
+            dom = Structure()
+            dom.feed(html)
+            self.assertEqual(len(dom.ids), len(set(dom.ids)), route)
+            for href in dom.links:
+                self.assertNotEqual(href, '#')
+                if href.startswith('#'):
+                    self.assertIn(href[1:], dom.ids)
+                elif href.startswith('/'):
+                    target = urlsplit(href).path
+                    self.assertTrue((ROOT / target.strip('/') / 'index.html').exists(), (route, href))
+            for asset in dom.assets:
+                self.assertTrue((ROOT / asset.lstrip('/')).is_file(), (route, asset))
+            blocks = re.findall(r'<script type="application/ld\+json">(.*?)</script>', html, re.S)
+            for block in blocks:
+                data = json.loads(block)
+                self.assertEqual(data['@context'], 'https://schema.org')
+            self.assertNotIn('Bedri Bayyurt', html)
+            self.assertNotIn('id="fundador"', html)
+            self.assertNotIn('href="https://discord.gg/', html)
+    def test_prompt_tool_exists_only_in_its_space(self):
+        path = ROOT / 'experimentar/index.html'
+        self.assertTrue(path.exists())
+        html = path.read_text()
+        dom = Structure()
+        dom.feed(html)
+        for key in ['prompt-goal','prompt-context','prompt-format','prompt-result','copy-prompt','copy-status']:
+            self.assertIn(key, dom.ids)
+        self.assertIn('aria-live="polite"', html)
+        script = (ROOT / 'assets/site.js').read_text()
+        self.assertNotIn('fetch(', script)
+        self.assertNotIn('eval(', script)
+    def test_community_and_sitemap_use_real_destinations(self):
+        path = ROOT / 'comunidade/index.html'
+        self.assertTrue(path.exists())
+        html = path.read_text()
+        self.assertIn('https://www.instagram.com/kanda.ia.ao/', html)
+        self.assertIn('Em preparação', html)
+        self.assertIn('mailto:info@kandaia.ao?subject=', html)
+        tree = ET.parse(ROOT / 'sitemap.xml')
+        locs = [e.text for e in tree.findall('.//{http://www.sitemaps.org/schemas/sitemap/0.9}loc')]
+        self.assertEqual(set(locs), {'https://kandaia.ao' + route for route in ROUTES})
 
 if __name__ == '__main__':
     unittest.main()
