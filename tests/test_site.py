@@ -7,7 +7,7 @@ from urllib.parse import urlsplit
 import xml.etree.ElementTree as ET
 
 ROOT = Path(__file__).resolve().parents[1]
-ROUTES = ['/', '/aprender/', '/experimentar/', '/comunidade/', '/solucoes/', '/aprender/aprender-com-ia/', '/aprender/escrever-melhor/', '/aprender/verificar-respostas/']
+ROUTES = ['/', '/aprender/', '/experimentar/', '/comunidade/', '/solucoes/', '/aprender/aprender-com-ia/', '/aprender/escrever-melhor/', '/aprender/verificar-respostas/', '/brief/']
 
 class Structure(HTMLParser):
     def __init__(self):
@@ -98,7 +98,15 @@ class MultipageSite(unittest.TestCase):
         self.assertIn('mailto:info@kandaia.ao?subject=', html)
         tree = ET.parse(ROOT / 'sitemap.xml')
         locs = [e.text for e in tree.findall('.//{http://www.sitemaps.org/schemas/sitemap/0.9}loc')]
-        self.assertEqual(set(locs), {'https://kandaia.ao' + route for route in ROUTES})
+        editions = {'https://kandaia.ao/brief/' + d.name + '/' for d in (ROOT / 'brief').iterdir() if d.is_dir()}
+        self.assertEqual(set(locs), {'https://kandaia.ao' + route for route in ROUTES} | editions)
+    def test_brief_editions_have_preview_metadata(self):
+        for d in (ROOT / 'brief').iterdir():
+            if d.is_dir():
+                html = (d / 'index.html').read_text()
+                self.assertIn('https://kandaia.ao/brief/' + d.name + '/', html)
+                self.assertIn('property="og:image"', html)
+                self.assertIn('href="/brief/"', html)
 
 if __name__ == '__main__':
     unittest.main()
