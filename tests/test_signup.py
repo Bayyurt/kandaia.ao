@@ -13,12 +13,12 @@ class Signup(unittest.TestCase):
             with self.subTest(p=p):
                 foot = re.search(r'<footer.*?</footer>', (ROOT/p).read_text(), re.S).group(0)
                 self.assertIn('data-signup-open', foot)
-                self.assertIn('Seguir a newsletter', foot)
+                self.assertIn('Junte-se à comunidade', foot)
     def test_popup_fields_honeypot_backend(self):
         js = (ROOT/'assets/signup.js').read_text()
         for m in ['id="ks-n"', 'id="ks-c"', 'name="_honey"', 'tabindex="-1"', 'required', 'formsubmit.co/ajax/info@kandaia.ao',
-                  "_subject:'Nova inscrição newsletter'", "_template:'table'", "_captcha:'false'", 'Escape', 'attachShadow',
-                  'AI Newsletter by Kanda IA', 'só servem para enviar a newsletter', 'DAYS=30', '15000', '.5']:
+                  "_subject:'Nova inscrição comunidade Kanda IA'", "_template:'table'", "_captcha:'false'", 'Escape', 'attachShadow',
+                  'Junte-se à comunidade', 'Join the Kanda IA community', 'Newsletter de IA, novidades e mais.', 'AI newsletter, updates and more.', 'Juntar-me / Join', 'DAYS=30', '15000', '.5']:
             self.assertIn(m, js)
 
 if __name__ == '__main__':

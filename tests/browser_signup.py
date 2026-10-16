@@ -33,13 +33,13 @@ def run(base, shots):
         c2=ctx(390,844); m=c2.new_page(); m.goto(base+'newsletter/2026-10-16/')
         m.evaluate('window.scrollTo(0,document.documentElement.scrollHeight)'); m.wait_for_timeout(400)
         mc=m.locator('#kanda-signup .card'); assert mc.is_visible()
-        box=mc.bounding_box(); assert box['width']>=389 and abs(box['y']+box['height']-844)<2, box
+        box=mc.bounding_box(); assert box['width']>=389 and abs(box['y']+box['height']-844)<2 and box['height']<=0.35*844, box
         if shots: m.screenshot(path=str(shots/'signup-mobile.png'))
         m.locator('#ks-n').fill('Ana'); m.locator('#ks-c').fill('abc'); m.locator('.go').click()
         assert 'inválido' in m.locator('.msg').inner_text() and not posts
         m.locator('#ks-c').fill('+244 923 456 789'); m.locator('.go').click()
         m.wait_for_function("document.querySelector('#kanda-signup').shadowRoot.querySelector('.msg').className.includes('ok')")
-        assert posts and posts[0]['telefone']=='+244 923 456 789' and posts[0]['_subject']=='Nova inscrição newsletter'
+        assert posts and posts[0]['telefone']=='+244 923 456 789' and posts[0]['_subject']=='Nova inscrição comunidade Kanda IA'
         # home: no auto-open, footer link opens
         c3=ctx(1280,800); h=c3.new_page(); h.clock.install(); h.goto(base); h.clock.run_for(20000)
         assert h.locator('#kanda-signup').count()==0

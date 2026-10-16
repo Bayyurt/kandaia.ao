@@ -8,19 +8,20 @@ function remember(){try{localStorage.setItem(KEY,String(Date.now()));}catch(_){}
 var EMAIL=/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/;
 function validContact(v){v=v.trim();if(EMAIL.test(v))return true;var d=v.replace(/[\s().-]/g,'');return /^\+?\d{9,15}$/.test(d);}
 var css=':host{all:initial}*{box-sizing:border-box}'+
-'.card{position:fixed;right:20px;bottom:20px;z-index:2147483000;width:340px;max-width:calc(100vw - 24px);font:14px/1.45 "Segoe UI",system-ui,-apple-system,sans-serif;color:#e8f6ff;background:linear-gradient(160deg,rgba(14,10,32,.97),rgba(6,8,20,.97));border:1px solid rgba(0,240,255,.45);border-radius:14px;padding:18px 18px 14px;box-shadow:0 0 0 1px rgba(255,43,214,.18),0 12px 40px rgba(0,0,0,.55),0 0 28px rgba(0,240,255,.18);transform:translateY(16px);opacity:0;transition:transform .25s ease,opacity .25s ease}'+
+'.card{position:fixed;right:16px;bottom:16px;z-index:2147483000;width:300px;max-width:calc(100vw - 24px);font:13px/1.4 "Segoe UI",system-ui,-apple-system,sans-serif;color:#e8f6ff;background:rgba(8,8,22,.96);border:1px solid rgba(0,240,255,.4);border-radius:12px;padding:12px 12px 10px;box-shadow:0 8px 28px rgba(0,0,0,.5),0 0 18px rgba(0,240,255,.14);transform:translateY(12px);opacity:0;transition:transform .2s ease,opacity .2s ease}'+
 '.card.on{transform:none;opacity:1}'+
-'h2{margin:0 26px 2px 0;font-size:16px;line-height:1.3;color:#fff;letter-spacing:.2px}h2 b{color:#00f0ff;font-weight:700}'+
-'.en{margin:0 0 12px;color:#9fb3c8;font-size:12.5px}'+
-'label{display:block;font-size:12px;color:#9fb3c8;margin:8px 0 4px}'+
-'input{width:100%;padding:9px 11px;border-radius:8px;border:1px solid rgba(159,179,200,.35);background:rgba(255,255,255,.04);color:#fff;font:inherit}'+
-'input:focus{outline:none;border-color:#00f0ff;box-shadow:0 0 0 3px rgba(0,240,255,.2)}input[aria-invalid=true]{border-color:#ff2bd6}'+
+'h2{margin:0 24px 1px 0;font-size:13.5px;line-height:1.3;color:#fff;font-weight:700}h2 b{color:#00f0ff}'+
+'.sub{margin:0 0 8px;color:#9fb3c8;font-size:11.5px}'+
+'.sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}'+
+'.row{display:flex;gap:6px}.row input{min-width:0}'+
+'input{flex:1;width:100%;padding:7px 9px;border-radius:7px;border:1px solid rgba(159,179,200,.3);background:rgba(255,255,255,.04);color:#fff;font:12.5px/1.3 inherit;font-family:inherit}'+
+'input:focus{outline:none;border-color:#00f0ff;box-shadow:0 0 0 2px rgba(0,240,255,.2)}input[aria-invalid=true]{border-color:#ff2bd6}'+
 '.hp{position:absolute;left:-9999px;width:1px;height:1px;overflow:hidden}'+
-'button{font:inherit;cursor:pointer}.go{margin-top:12px;width:100%;padding:10px;border:0;border-radius:8px;font-weight:700;color:#05060f;background:linear-gradient(90deg,#00f0ff,#ff2bd6)}.go:disabled{opacity:.6;cursor:wait}'+
+'button{font:inherit;cursor:pointer}.go{flex:none;padding:7px 11px;border:0;border-radius:7px;font-weight:700;font-size:12px;color:#05060f;background:linear-gradient(90deg,#00f0ff,#ff2bd6)}.go:disabled{opacity:.6;cursor:wait}'+
 '.go:focus-visible,.x:focus-visible{outline:2px solid #fff;outline-offset:2px}'+
-'.x{position:absolute;top:8px;right:8px;width:32px;height:32px;border:0;border-radius:8px;background:transparent;color:#9fb3c8;font-size:20px;line-height:1}.x:hover{color:#fff;background:rgba(255,255,255,.08)}'+
-'.priv{margin:10px 0 0;font-size:11.5px;color:#7f93a8}.msg{margin:8px 0 0;font-size:13px;min-height:1em}.msg.err{color:#ff7ae6}.msg.ok{color:#5cffc6}'+
-'@media (max-width:560px){.card{left:0;right:0;bottom:0;width:100%;max-width:none;border-radius:16px 16px 0 0;padding:18px 16px calc(16px + env(safe-area-inset-bottom))}}'+
+'.x{position:absolute;top:6px;right:6px;width:26px;height:26px;border:0;border-radius:6px;background:transparent;color:#9fb3c8;font-size:17px;line-height:1}.x:hover{color:#fff;background:rgba(255,255,255,.08)}'+
+'.priv{margin:6px 0 0;font-size:10.5px;color:#7f93a8}.msg{margin:4px 0 0;font-size:11.5px}.msg:empty{display:none}.msg.err{color:#ff7ae6}.msg.ok{color:#5cffc6}'+
+'@media (max-width:560px){.card{left:0;right:0;bottom:0;width:100%;max-width:none;border-radius:12px 12px 0 0;padding:10px 12px calc(8px + env(safe-area-inset-bottom))}}'+
 '@media (prefers-reduced-motion:reduce){.card{transition:none}}';
 var host,root,card,lastFocus;
 function build(){
@@ -28,13 +29,14 @@ function build(){
  root=host.attachShadow({mode:'open'});
  root.innerHTML='<style>'+css+'</style><section class="card" role="dialog" aria-modal="false" aria-labelledby="ks-t" aria-describedby="ks-d">'+
  '<button type="button" class="x" aria-label="Fechar / Close">×</button>'+
- '<h2 id="ks-t">Receba a <b>AI Newsletter by Kanda IA</b></h2>'+
- '<p class="en" id="ks-d">Get the AI Newsletter by Kanda IA, by email or WhatsApp.</p>'+
- '<form novalidate><label for="ks-n">Nome / Name</label><input id="ks-n" name="nome" autocomplete="name" required maxlength="80">'+
- '<label for="ks-c">Email ou telefone/WhatsApp / Email or phone</label><input id="ks-c" name="contacto" autocomplete="email" inputmode="email" required maxlength="120" placeholder="nome@exemplo.com ou +244 9xx xxx xxx">'+
+ '<h2 id="ks-t">Junte-se à comunidade <b>Kanda IA</b><span class="sr"> / Join the Kanda IA community</span></h2>'+
+ '<p class="sub" id="ks-d">Newsletter de IA, novidades e mais. · <span lang="en">Join the community: AI newsletter, updates and more.</span></p>'+
+ '<form novalidate><div class="row"><label class="sr" for="ks-n">Nome / Name</label><input id="ks-n" name="nome" autocomplete="name" required maxlength="80" placeholder="Nome / Name"></div>'+
+ '<div class="row" style="margin-top:6px"><label class="sr" for="ks-c">Email ou telefone/WhatsApp / Email or phone</label><input id="ks-c" name="contacto" autocomplete="email" inputmode="email" required maxlength="120" placeholder="Email ou +244 9xx xxx xxx">'+
+ '<button class="go" type="submit">Juntar-me / Join</button></div>'+
  '<div class="hp" aria-hidden="true"><label for="ks-h">Não preencher</label><input id="ks-h" name="_honey" tabindex="-1" autocomplete="off"></div>'+
- '<button class="go" type="submit">Seguir / Follow</button><p class="msg" role="status" aria-live="polite"></p>'+
- '<p class="priv">Os seus dados só servem para enviar a newsletter. · Your data is only used to send the newsletter.</p></form></section>';
+ '<p class="msg" role="status" aria-live="polite"></p>'+
+ '<p class="priv">Dados usados só para comunicações Kanda IA. · Used only for Kanda IA updates.</p></form></section>';
  document.body.appendChild(host);
  card=root.querySelector('.card');
  var form=root.querySelector('form'),n=root.getElementById('ks-n'),c=root.getElementById('ks-c'),h=root.getElementById('ks-h'),msg=root.querySelector('.msg'),go=root.querySelector('.go');
@@ -50,9 +52,9 @@ function build(){
   if(h.value){say('Obrigado! · Thanks!','ok');remember();return;}
   var v=c.value.trim(),isMail=EMAIL.test(v);
   go.disabled=true;say('A enviar… · Sending…');
-  fetch(ENDPOINT,{method:'POST',headers:{'Content-Type':'application/json','Accept':'application/json'},body:JSON.stringify({nome:n.value.trim(),email:isMail?v:'',telefone:isMail?'':v,pagina:location.pathname,_subject:'Nova inscrição newsletter',_template:'table',_captcha:'false',_honey:''})})
+  fetch(ENDPOINT,{method:'POST',headers:{'Content-Type':'application/json','Accept':'application/json'},body:JSON.stringify({nome:n.value.trim(),email:isMail?v:'',telefone:isMail?'':v,pagina:location.pathname,_subject:'Nova inscrição comunidade Kanda IA',_template:'table',_captcha:'false',_honey:''})})
   .then(function(r){if(!r.ok)throw new Error(r.status);return r.json();})
-  .then(function(d){if(d&&(d.success===false||d.success==='false'))throw new Error('fail');remember();form.reset();say('Inscrição feita. Obrigado! · You are subscribed. Thank you!','ok');setTimeout(function(){close(false);},3500);})
+  .then(function(d){if(d&&(d.success===false||d.success==='false'))throw new Error('fail');remember();form.reset();say('Bem-vindo à comunidade! · Welcome to the community!','ok');setTimeout(function(){close(false);},3500);})
   .catch(function(){say('Não foi possível enviar. Tente de novo ou escreva para info@kandaia.ao. · Could not send, please try again.','err');})
   .then(function(){go.disabled=false;});
  });
