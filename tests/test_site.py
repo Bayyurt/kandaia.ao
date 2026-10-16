@@ -69,7 +69,7 @@ class MultipageSite(unittest.TestCase):
                     target = urlsplit(href).path
                     self.assertTrue((ROOT / target.strip('/') / 'index.html').exists(), (route, href))
             for asset in dom.assets:
-                self.assertTrue((ROOT / asset.lstrip('/')).is_file(), (route, asset))
+                self.assertTrue((ROOT / asset.split('?')[0].lstrip('/')).is_file(), (route, asset))
             blocks = re.findall(r'<script type="application/ld\+json">(.*?)</script>', html, re.S)
             for block in blocks:
                 data = json.loads(block)

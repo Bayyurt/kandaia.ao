@@ -18,7 +18,7 @@ class Signup(unittest.TestCase):
         js = (ROOT/'assets/signup.js').read_text()
         for m in ['id="ks-n"', 'id="ks-c"', 'name="_honey"', 'tabindex="-1"', 'required', 'formsubmit.co/ajax/info@kandaia.ao',
                   "_subject:'Nova inscrição comunidade Kanda IA'", "_template:'table'", "_captcha:'false'", 'Escape', 'attachShadow',
-                  'Junte-se à comunidade', 'Join the Kanda IA community', 'Newsletter de IA, novidades e mais.', 'AI newsletter, updates and more.', 'Juntar-me / Join', 'DAYS=30', '15000', '.5']:
+                  'Junte-se à comunidade', 'Join the Kanda IA community', 'Newsletter de IA, novidades e mais.', 'AI newsletter, updates and more.', 'Juntar-me / Join', 'DAYS=30', '3000', '.5']:
             self.assertIn(m, js)
 
 if __name__ == '__main__':

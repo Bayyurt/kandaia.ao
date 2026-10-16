@@ -19,7 +19,7 @@ def run(base, shots):
         pg.goto(base+'newsletter/2026-10-16/')
         card=pg.locator('#kanda-signup .card')
         assert card.count()==0
-        pg.clock.run_for(16000); pg.wait_for_timeout(400)
+        pg.clock.run_for(3500); pg.wait_for_timeout(400)
         assert card.is_visible()
         for s in ['#ks-n','#ks-c','#ks-h']: assert pg.locator('#kanda-signup '+s).count()==1
         assert pg.locator('#kanda-signup #ks-h').bounding_box()['x']<-1000

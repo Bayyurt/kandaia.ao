@@ -52,11 +52,17 @@ function build(){
   if(h.value){say('Obrigado! · Thanks!','ok');remember();return;}
   var v=c.value.trim(),isMail=EMAIL.test(v);
   go.disabled=true;say('A enviar… · Sending…');
-  fetch(ENDPOINT,{method:'POST',headers:{'Content-Type':'application/json','Accept':'application/json'},body:JSON.stringify({nome:n.value.trim(),email:isMail?v:'',telefone:isMail?'':v,pagina:location.pathname,_subject:'Nova inscrição comunidade Kanda IA',_template:'table',_captcha:'false',_honey:''})})
-  .then(function(r){if(!r.ok)throw new Error(r.status);return r.json();})
-  .then(function(d){if(d&&(d.success===false||d.success==='false'))throw new Error('fail');remember();form.reset();say('Bem-vindo à comunidade! · Welcome to the community!','ok');setTimeout(function(){close(false);},3500);})
-  .catch(function(){say('Não foi possível enviar. Tente de novo ou escreva para info@kandaia.ao. · Could not send, please try again.','err');})
-  .then(function(){go.disabled=false;});
+  var data={nome:n.value.trim(),email:isMail?v:'',telefone:isMail?'':v,pagina:location.pathname,_subject:'Nova inscrição comunidade Kanda IA',_template:'table',_captcha:'false',_honey:''};
+  function ok(){remember();form.reset();say('Bem-vindo à comunidade! · Welcome to the community!','ok');setTimeout(function(){close(false);},3500);go.disabled=false;}
+  function post(){return fetch(ENDPOINT,{method:'POST',mode:'cors',referrer:location.href,referrerPolicy:'no-referrer-when-downgrade',headers:{'Content-Type':'application/json','Accept':'application/json'},body:JSON.stringify(data)})
+   .then(function(r){return r.text().then(function(t){var d;try{d=JSON.parse(t);}catch(_){d=null;}if(!r.ok||!d||d.success===false||d.success==='false')throw new Error('formsubmit '+r.status+': '+(d&&d.message||t).slice(0,200));return d;});});}
+  /* Fallback: classic form POST into a hidden iframe (no CORS/JSON involved). */
+  function classic(){var name='ks-f'+Date.now(),f=document.createElement('iframe');f.name=name;f.style.display='none';f.setAttribute('aria-hidden','true');document.body.appendChild(f);
+   var fm=document.createElement('form');fm.method='POST';fm.action=ENDPOINT.replace('/ajax/','/');fm.target=name;fm.style.display='none';fm.setAttribute('referrerpolicy','no-referrer-when-downgrade');
+   data._next=location.origin+'/404.html';for(var k in data){var i=document.createElement('input');i.type='hidden';i.name=k;i.value=data[k];fm.appendChild(i);}
+   document.body.appendChild(fm);fm.submit();setTimeout(function(){fm.remove();f.remove();},20000);}
+  post().catch(function(e){if(window.console)console.warn('[kanda-signup] retry',e&&e.message);return new Promise(function(r){setTimeout(r,1200);}).then(post);})
+  .then(ok,function(e){if(window.console)console.warn('[kanda-signup] ajax failed, classic fallback',e&&e.message);try{classic();ok();}catch(_){say('Não foi possível enviar. Tente de novo ou escreva para info@kandaia.ao. · Could not send, please try again.','err');go.disabled=false;}});
  });
 }
 function open(manual){
@@ -73,7 +79,7 @@ document.addEventListener('click',function(e){var a=e.target.closest&&e.target.c
 var auto=/^\/newsletter\//.test(location.pathname);
 if(location.hash==='#seguir'){open(true);}
 else if(auto&&!hidden()){
- var t=setTimeout(function(){done();open(false);},15000);
+ var t=setTimeout(function(){done();open(false);},3000);
  function onScroll(){var d=document.documentElement,max=d.scrollHeight-d.clientHeight;if(max>0&&(window.scrollY/max)>=.5){done();open(false);}}
  function done(){clearTimeout(t);window.removeEventListener('scroll',onScroll);}
  window.addEventListener('scroll',onScroll,{passive:true});
