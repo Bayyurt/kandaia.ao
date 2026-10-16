@@ -38,8 +38,13 @@ def run(base, shots):
         m.locator('#ks-n').fill('Ana'); m.locator('#ks-c').fill('abc'); m.locator('.go').click()
         assert 'inválido' in m.locator('.msg').inner_text() and not posts
         m.locator('#ks-c').fill('+244 923 456 789'); m.locator('.go').click()
-        m.wait_for_function("document.querySelector('#kanda-signup').shadowRoot.querySelector('.msg').className.includes('ok')")
-        assert posts and posts[0]['telefone']=='+244 923 456 789' and posts[0]['_subject']=='Nova inscrição comunidade Kanda IA'
+        assert 'inválido' in m.locator('.msg').inner_text() and not posts, 'phone rejected'
+        m.locator('#ks-c').fill('ana@example.com'); m.locator('.go').click()
+        m.wait_for_function("!!document.querySelector('#kanda-signup').shadowRoot.querySelector('.ty')")
+        tyt=m.evaluate("document.querySelector('#kanda-signup').shadowRoot.querySelector('.ty').innerHTML")
+        assert 'Enviámos um email de boas-vindas' in tyt and '/aprender/' in tyt and '/newsletter/2026-10-16/' in tyt
+        if shots: m.screenshot(path=str(shots/'signup-thanks-mobile.png'))
+        assert posts and posts[0]['email']=='ana@example.com' and 'telefone' not in posts[0] and posts[0]['_subject']=='Nova inscrição comunidade Kanda IA'
         # home: auto-opens after 3 s on main pages too; footer link reopens after close
         c3=ctx(1280,800); h=c3.new_page(); h.clock.install(); h.goto(base); h.clock.run_for(2500)
         assert h.locator('#kanda-signup').count()==0 or not h.locator('#kanda-signup .card').is_visible(), 'not before 3 s'

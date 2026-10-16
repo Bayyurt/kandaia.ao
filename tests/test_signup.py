@@ -16,7 +16,7 @@ class Signup(unittest.TestCase):
                 self.assertIn('Junte-se à comunidade', foot)
     def test_popup_fields_honeypot_backend(self):
         js = (ROOT/'assets/signup.js').read_text()
-        for m in ['id="ks-n"', 'id="ks-c"', 'name="_honey"', 'tabindex="-1"', 'required', 'formsubmit.co/ajax/info@kandaia.ao',
+        for m in ['id="ks-n"', 'id="ks-c"', 'type="email"', 'Enviámos um email de boas-vindas', '/aprender/', 'LATEST=',  'name="_honey"', 'tabindex="-1"', 'required', 'formsubmit.co/ajax/info@kandaia.ao',
                   "_subject:'Nova inscrição comunidade Kanda IA'", "_template:'table'", "_captcha:'false'", 'Escape', 'attachShadow',
                   'Junte-se à comunidade', 'Join the Kanda IA community', 'Newsletter de IA, novidades e mais.', 'AI newsletter, updates and more.', 'Juntar-me / Join', 'DAYS=30', '3000', '.5']:
             self.assertIn(m, js)
@@ -29,7 +29,7 @@ class AutoOpenEverywhere(unittest.TestCase):
         self.assertIn('var auto=true;', js); self.assertIn('3000', js); self.assertIn('DAYS=', js)
         for p in ROOT.rglob('index.html'):
             t=p.read_text()
-            if 'signup.js' in t: self.assertIn('signup.js?v=3', t, str(p))
+            if 'signup.js' in t: self.assertIn('signup.js?v=4', t, str(p))
 
 
 if __name__ == '__main__':

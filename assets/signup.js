@@ -2,11 +2,10 @@
 (function(){
 'use strict';
 if(window.__kandaSignup)return;window.__kandaSignup=true;
-var KEY='kanda-signup-hide',DAYS=30,ENDPOINT='https://formsubmit.co/ajax/info@kandaia.ao';
+var KEY='kanda-signup-hide',DAYS=30,LATEST='/newsletter/2026-10-16/',ENDPOINT='https://formsubmit.co/ajax/info@kandaia.ao';
 function hidden(){try{var t=+localStorage.getItem(KEY);return t&&Date.now()-t<DAYS*864e5;}catch(_){return false;}}
 function remember(){try{localStorage.setItem(KEY,String(Date.now()));}catch(_){}}
 var EMAIL=/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/;
-function validContact(v){v=v.trim();if(EMAIL.test(v))return true;var d=v.replace(/[\s().-]/g,'');return /^\+?\d{9,15}$/.test(d);}
 var css=':host{all:initial}*{box-sizing:border-box}'+
 '.card{position:fixed;right:16px;bottom:16px;z-index:2147483000;width:300px;max-width:calc(100vw - 24px);font:13px/1.4 "Segoe UI",system-ui,-apple-system,sans-serif;color:#e8f6ff;background:rgba(8,8,22,.96);border:1px solid rgba(0,240,255,.4);border-radius:12px;padding:12px 12px 10px;box-shadow:0 8px 28px rgba(0,0,0,.5),0 0 18px rgba(0,240,255,.14);transform:translateY(12px);opacity:0;transition:transform .2s ease,opacity .2s ease}'+
 '.card.on{transform:none;opacity:1}'+
@@ -27,12 +26,12 @@ var host,root,card,lastFocus;
 function build(){
  host=document.createElement('div');host.id='kanda-signup';
  root=host.attachShadow({mode:'open'});
- root.innerHTML='<style>'+css+'</style><section class="card" role="dialog" aria-modal="false" aria-labelledby="ks-t" aria-describedby="ks-d">'+
+ root.innerHTML='<style>'+css+'.ty-h{margin:4px 0 2px;color:#00f0ff;font-weight:700;text-shadow:0 0 8px rgba(0,240,255,.6)}.ty-s{margin:0 0 8px;font-size:12px;opacity:.85}.ty-l{display:flex;flex-direction:column;gap:6px;margin:0}.ty-l a{color:#ff2bd6;font:600 12px ui-monospace,Menlo,monospace;text-decoration:none}.ty-l a:hover{text-decoration:underline}</style><section class="card" role="dialog" aria-modal="false" aria-labelledby="ks-t" aria-describedby="ks-d">'+
  '<button type="button" class="x" aria-label="Fechar / Close">×</button>'+
  '<h2 id="ks-t">Junte-se à comunidade <b>Kanda IA</b><span class="sr"> / Join the Kanda IA community</span></h2>'+
  '<p class="sub" id="ks-d">Newsletter de IA, novidades e mais. · <span lang="en">Join the community: AI newsletter, updates and more.</span></p>'+
  '<form novalidate><div class="row"><label class="sr" for="ks-n">Nome / Name</label><input id="ks-n" name="nome" autocomplete="name" required maxlength="80" placeholder="Nome / Name"></div>'+
- '<div class="row" style="margin-top:6px"><label class="sr" for="ks-c">Email ou telefone/WhatsApp / Email or phone</label><input id="ks-c" name="contacto" autocomplete="email" inputmode="email" required maxlength="120" placeholder="Email ou +244 9xx xxx xxx">'+
+ '<div class="row" style="margin-top:6px"><label class="sr" for="ks-c">Email</label><input id="ks-c" name="email" type="email" autocomplete="email" inputmode="email" required maxlength="120" placeholder="Email">'+
  '<button class="go" type="submit">Juntar-me / Join</button></div>'+
  '<div class="hp" aria-hidden="true"><label for="ks-h">Não preencher</label><input id="ks-h" name="_honey" tabindex="-1" autocomplete="off"></div>'+
  '<p class="msg" role="status" aria-live="polite"></p>'+
@@ -42,18 +41,21 @@ function build(){
  var form=root.querySelector('form'),n=root.getElementById('ks-n'),c=root.getElementById('ks-c'),h=root.getElementById('ks-h'),msg=root.querySelector('.msg'),go=root.querySelector('.go');
  root.querySelector('.x').addEventListener('click',function(){close(true);});
  document.addEventListener('keydown',function(e){if(e.key==='Escape'&&card.classList.contains('on'))close(true);});
+ function thanks(){form.style.display='none';root.querySelector('.sub').style.display='none';var t=document.createElement('div');t.className='ty';t.setAttribute('role','status');
+  t.innerHTML='<p class="ty-h">Bem-vindo à comunidade! <span lang="en">· Welcome!</span></p><p class="ty-s">Enviámos um email de boas-vindas. <span lang="en">We sent you a welcome email.</span></p>'+
+  '<p class="ty-l"><a href="'+LATEST+'">Última newsletter / Latest newsletter →</a><a href="/aprender/">Guias Aprender / Guides →</a></p>';root.querySelector('.card').appendChild(t);}
  function say(t,cls){msg.textContent=t;msg.className='msg '+(cls||'');}
  form.addEventListener('submit',function(e){
   e.preventDefault();
-  var okN=n.value.trim().length>=2,okC=validContact(c.value);
+  var okN=n.value.trim().length>=2,okC=EMAIL.test(c.value.trim());
   n.setAttribute('aria-invalid',String(!okN));c.setAttribute('aria-invalid',String(!okC));
   if(!okN){say('Indique o seu nome. · Please enter your name.','err');n.focus();return;}
-  if(!okC){say('Email ou telefone inválido (ex.: +244 923 456 789). · Invalid email or phone.','err');c.focus();return;}
+  if(!okC){say('Email inválido (ex.: nome@gmail.com). · Invalid email.','err');c.focus();return;}
   if(h.value){say('Obrigado! · Thanks!','ok');remember();return;}
-  var v=c.value.trim(),isMail=EMAIL.test(v);
+  var v=c.value.trim();
   go.disabled=true;say('A enviar… · Sending…');
-  var data={nome:n.value.trim(),email:isMail?v:'',telefone:isMail?'':v,pagina:location.pathname,_subject:'Nova inscrição comunidade Kanda IA',_template:'table',_captcha:'false',_honey:''};
-  function ok(){remember();form.reset();say('Bem-vindo à comunidade! · Welcome to the community!','ok');setTimeout(function(){close(false);},3500);go.disabled=false;}
+  var data={nome:n.value.trim(),email:v,pagina:location.pathname,_subject:'Nova inscrição comunidade Kanda IA',_template:'table',_captcha:'false',_honey:''};
+  function ok(){remember();form.reset();go.disabled=false;thanks();}
   function post(){return fetch(ENDPOINT,{method:'POST',mode:'cors',referrer:location.href,referrerPolicy:'no-referrer-when-downgrade',headers:{'Content-Type':'application/json','Accept':'application/json'},body:JSON.stringify(data)})
    .then(function(r){return r.text().then(function(t){var d;try{d=JSON.parse(t);}catch(_){d=null;}if(!r.ok||!d||d.success===false||d.success==='false')throw new Error('formsubmit '+r.status+': '+(d&&d.message||t).slice(0,200));return d;});});}
   /* Fallback: classic form POST into a hidden iframe (no CORS/JSON involved). */
