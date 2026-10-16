@@ -46,6 +46,18 @@ if(hasBuilder){
   }
  });
 }
+if(!document.querySelector('.k-bg')){
+ const bg=document.createElement('div');bg.className='k-bg';bg.setAttribute('aria-hidden','true');
+ bg.innerHTML='<div class="k-city">'+[1,2,3,4,5,6,7,8].map(i=>'<div class="b b'+i+'"></div>').join('')+'</div><div class="k-floor"></div>';
+ document.body.insertBefore(bg,document.body.firstChild);
+}
+const topWrap=document.querySelector('header.top .wrap')||document.querySelector('header.top');
+if(topWrap&&!document.querySelector('.k-chrome')){
+ const c=document.createElement('div');c.className='k-chrome';c.setAttribute('aria-hidden','true');
+ const seg=(location.pathname.split('/').filter(Boolean)[0]||'home').toUpperCase();
+ c.innerHTML='<span>KANDA IA — '+seg+'</span><span class="k-live">● ONLINE</span>';
+ topWrap.appendChild(c);
+}
 let saved=null;try{saved=localStorage.getItem('kanda-lang');}catch(_){}
 setLanguage(saved==='en'?'en':'pt-AO');
 })();

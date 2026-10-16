@@ -40,9 +40,12 @@ def run(base, shots):
         m.locator('#ks-c').fill('+244 923 456 789'); m.locator('.go').click()
         m.wait_for_function("document.querySelector('#kanda-signup').shadowRoot.querySelector('.msg').className.includes('ok')")
         assert posts and posts[0]['telefone']=='+244 923 456 789' and posts[0]['_subject']=='Nova inscrição comunidade Kanda IA'
-        # home: no auto-open, footer link opens
-        c3=ctx(1280,800); h=c3.new_page(); h.clock.install(); h.goto(base); h.clock.run_for(20000)
-        assert h.locator('#kanda-signup').count()==0
+        # home: auto-opens after 3 s on main pages too; footer link reopens after close
+        c3=ctx(1280,800); h=c3.new_page(); h.clock.install(); h.goto(base); h.clock.run_for(2500)
+        assert h.locator('#kanda-signup').count()==0 or not h.locator('#kanda-signup .card').is_visible(), 'not before 3 s'
+        h.clock.run_for(1000); h.wait_for_timeout(400)
+        assert h.locator('#kanda-signup .card').is_visible(), 'home auto-open at 3 s'
+        h.evaluate("window.KandaSignup.close()"); h.wait_for_timeout(400)
         h.locator('footer [data-signup-open]').click(); h.wait_for_timeout(400)
         assert h.locator('#kanda-signup .card').is_visible()
         assert h.evaluate("document.querySelector('#kanda-signup').shadowRoot.activeElement.id")=='ks-n'

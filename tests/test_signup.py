@@ -21,5 +21,16 @@ class Signup(unittest.TestCase):
                   'Junte-se à comunidade', 'Join the Kanda IA community', 'Newsletter de IA, novidades e mais.', 'AI newsletter, updates and more.', 'Juntar-me / Join', 'DAYS=30', '3000', '.5']:
             self.assertIn(m, js)
 
+
+
+class AutoOpenEverywhere(unittest.TestCase):
+    def test_auto_open_all_pages_and_v3(self):
+        js=(ROOT/'assets/signup.js').read_text()
+        self.assertIn('var auto=true;', js); self.assertIn('3000', js); self.assertIn('DAYS=', js)
+        for p in ROOT.rglob('index.html'):
+            t=p.read_text()
+            if 'signup.js' in t: self.assertIn('signup.js?v=3', t, str(p))
+
+
 if __name__ == '__main__':
     unittest.main()

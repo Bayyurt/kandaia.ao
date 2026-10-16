@@ -76,7 +76,7 @@ function open(manual){
 function close(rem){if(!card)return;if(rem)remember();card.classList.remove('on');setTimeout(function(){host.style.display='none';},260);if(lastFocus&&lastFocus.focus&&root.activeElement)lastFocus.focus();}
 window.KandaSignup={open:function(){open(true);},close:function(){close(false);}};
 document.addEventListener('click',function(e){var a=e.target.closest&&e.target.closest('[data-signup-open]');if(a){e.preventDefault();open(true);}});
-var auto=/^\/newsletter\//.test(location.pathname);
+var auto=true;
 if(location.hash==='#seguir'){open(true);}
 else if(auto&&!hidden()){
  var t=setTimeout(function(){done();open(false);},3000);
