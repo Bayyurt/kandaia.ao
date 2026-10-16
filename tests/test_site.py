@@ -7,7 +7,7 @@ from urllib.parse import urlsplit
 import xml.etree.ElementTree as ET
 
 ROOT = Path(__file__).resolve().parents[1]
-ROUTES = ['/', '/aprender/', '/experimentar/', '/comunidade/', '/solucoes/', '/aprender/aprender-com-ia/', '/aprender/escrever-melhor/', '/aprender/verificar-respostas/', '/brief/']
+ROUTES = ['/', '/aprender/', '/experimentar/', '/comunidade/', '/solucoes/', '/aprender/aprender-com-ia/', '/aprender/escrever-melhor/', '/aprender/verificar-respostas/', '/newsletter/']
 
 class Structure(HTMLParser):
     def __init__(self):
@@ -98,20 +98,36 @@ class MultipageSite(unittest.TestCase):
         self.assertIn('mailto:info@kandaia.ao?subject=', html)
         tree = ET.parse(ROOT / 'sitemap.xml')
         locs = [e.text for e in tree.findall('.//{http://www.sitemaps.org/schemas/sitemap/0.9}loc')]
-        editions = {'https://kandaia.ao/brief/' + d.name + '/' for d in (ROOT / 'brief').iterdir() if d.is_dir()}
+        editions = {'https://kandaia.ao/newsletter/' + d.name + '/' for d in (ROOT / 'newsletter').iterdir() if d.is_dir()}
         self.assertEqual(set(locs), {'https://kandaia.ao' + route for route in ROUTES} | editions)
     def test_brief_pages_have_no_private_strings(self):
-        for path in (ROOT / 'brief').rglob('*.html'):
+        for path in list((ROOT / 'newsletter').rglob('*.html')) + list((ROOT / 'brief').rglob('*.html')):
             low = path.read_text().lower()
             for bad in ['bedri', 'bayyurt', 'bedrialexandre', 'firstmate', 'local file only']:
                 self.assertNotIn(bad, low, (str(path), bad))
     def test_brief_editions_have_preview_metadata(self):
-        for d in (ROOT / 'brief').iterdir():
+        for d in (ROOT / 'newsletter').iterdir():
             if d.is_dir():
                 html = (d / 'index.html').read_text()
-                self.assertIn('https://kandaia.ao/brief/' + d.name + '/', html)
+                self.assertIn('https://kandaia.ao/newsletter/' + d.name + '/', html)
                 self.assertIn('property="og:image"', html)
-                self.assertIn('href="/brief/"', html)
+                self.assertIn('href="/newsletter/"', html)
+                self.assertIn('AI Newsletter by Kanda IA', html)
+                self.assertNotIn('AI X Brief', html)
+    def test_brief_stubs_redirect_to_newsletter(self):
+        stubs = list((ROOT / 'brief').rglob('index.html'))
+        self.assertEqual(len(stubs), len(list((ROOT / 'newsletter').rglob('index.html'))))
+        for path in stubs:
+            rel = path.parent.relative_to(ROOT / 'brief')
+            sub = '' if str(rel) == '.' else str(rel) + '/'
+            self.assertTrue((ROOT / 'newsletter' / sub / 'index.html').exists(), path)
+            url = 'https://kandaia.ao/newsletter/' + sub
+            html = path.read_text()
+            self.assertIn('content="0; url=' + url + '"', html)
+            self.assertIn('location.replace("' + url + '"', html)
+            self.assertIn('rel="canonical" href="' + url + '"', html)
+            self.assertIn('property="og:url" content="' + url + '"', html)
+            self.assertIn('noindex', html)
 
 if __name__ == '__main__':
     unittest.main()
