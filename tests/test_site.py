@@ -100,6 +100,11 @@ class MultipageSite(unittest.TestCase):
         locs = [e.text for e in tree.findall('.//{http://www.sitemaps.org/schemas/sitemap/0.9}loc')]
         editions = {'https://kandaia.ao/brief/' + d.name + '/' for d in (ROOT / 'brief').iterdir() if d.is_dir()}
         self.assertEqual(set(locs), {'https://kandaia.ao' + route for route in ROUTES} | editions)
+    def test_brief_pages_have_no_private_strings(self):
+        for path in (ROOT / 'brief').rglob('*.html'):
+            low = path.read_text().lower()
+            for bad in ['bedri', 'bayyurt', 'bedrialexandre', 'firstmate', 'local file only']:
+                self.assertNotIn(bad, low, (str(path), bad))
     def test_brief_editions_have_preview_metadata(self):
         for d in (ROOT / 'brief').iterdir():
             if d.is_dir():
