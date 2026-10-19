@@ -2,7 +2,7 @@
 (function(){
 'use strict';
 if(window.__kandaSignup)return;window.__kandaSignup=true;
-var KEY='kanda-signup-hide',DAYS=30,LATEST='/newsletter/2026-10-16/',ENDPOINT='https://formsubmit.co/ajax/info@kandaia.ao';
+var KEY='kanda-signup-hide',DAYS=30,LATEST='/newsletter/2026-10-19/',ENDPOINT='https://formsubmit.co/ajax/info@kandaia.ao';
 function hidden(){try{var t=+localStorage.getItem(KEY);return t&&Date.now()-t<DAYS*864e5;}catch(_){return false;}}
 function remember(){try{localStorage.setItem(KEY,String(Date.now()));}catch(_){}}
 var EMAIL=/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/;

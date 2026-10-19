@@ -16,7 +16,7 @@ def run(base, shots):
             return c
         c=ctx(1280,800); pg=c.new_page(); errs=[]; pg.on('pageerror',lambda e:errs.append(str(e)))
         pg.clock.install()
-        pg.goto(base+'newsletter/2026-10-16/')
+        pg.goto(base+'newsletter/2026-10-19/')
         card=pg.locator('#kanda-signup .card')
         assert card.count()==0
         pg.clock.run_for(3500); pg.wait_for_timeout(400)
@@ -30,7 +30,7 @@ def run(base, shots):
         pg.reload(); pg.clock.run_for(20000); pg.wait_for_timeout(200)
         assert pg.locator('#kanda-signup').count()==0, 'should stay hidden 30 days'
         # submit flow on fresh context
-        c2=ctx(390,844); m=c2.new_page(); m.goto(base+'newsletter/2026-10-16/')
+        c2=ctx(390,844); m=c2.new_page(); m.goto(base+'newsletter/2026-10-19/')
         m.evaluate('window.scrollTo(0,document.documentElement.scrollHeight)'); m.wait_for_timeout(400)
         mc=m.locator('#kanda-signup .card'); assert mc.is_visible()
         box=mc.bounding_box(); assert box['width']>=389 and abs(box['y']+box['height']-844)<2 and box['height']<=0.35*844, box
@@ -42,7 +42,7 @@ def run(base, shots):
         m.locator('#ks-c').fill('ana@example.com'); m.locator('.go').click()
         m.wait_for_function("!!document.querySelector('#kanda-signup').shadowRoot.querySelector('.ty')")
         tyt=m.evaluate("document.querySelector('#kanda-signup').shadowRoot.querySelector('.ty').innerHTML")
-        assert 'Enviámos um email de boas-vindas' in tyt and '/aprender/' in tyt and '/newsletter/2026-10-16/' in tyt
+        assert 'Enviámos um email de boas-vindas' in tyt and '/aprender/' in tyt and '/newsletter/2026-10-19/' in tyt
         if shots: m.screenshot(path=str(shots/'signup-thanks-mobile.png'))
         assert posts and posts[0]['email']=='ana@example.com' and 'telefone' not in posts[0] and posts[0]['_subject']=='Nova inscrição comunidade Kanda IA'
         # home: auto-opens after 3 s on main pages too; footer link reopens after close
