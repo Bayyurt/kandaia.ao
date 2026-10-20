@@ -43,11 +43,11 @@ class MultipageSite(unittest.TestCase):
         for route in ['/aprender/', '/experimentar/', '/comunidade/']:
             self.assertIn('href="' + route + '"', nav)
         self.assertNotIn('href="#', nav)
-    def test_original_neon_visual_identity_is_restored(self):
+    def test_riso_mainframe_visual_identity(self):
         css = ROOT / 'assets/site.css'
         self.assertTrue(css.exists())
         text = css.read_text()
-        for marker in ['.scanlines', '.vignette', '.glitch', '.holo', '.floor', '.term', '#00f0ff', '#ff2bd6', 'data:font/woff2;base64,', 'prefers-reduced-motion']:
+        for marker in ['.scanlines', '.vignette', '.glitch', '.holo', '.floor', '.term', 'Riso Mainframe layer', '#ff48b0', '#0078bf', '#ffe800', 'data:font/woff2;base64,', 'prefers-reduced-motion']:
             self.assertIn(marker, text)
         html = (ROOT / 'index.html').read_text()
         self.assertIn('class="scanlines"', html)
