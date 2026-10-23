@@ -29,7 +29,7 @@ class AutoOpenEverywhere(unittest.TestCase):
         self.assertIn('var auto=true;', js); self.assertIn('3000', js); self.assertIn('DAYS=', js)
         for p in ROOT.rglob('index.html'):
             t=p.read_text()
-            if 'signup.js' in t: self.assertIn('signup.js?v=4', t, str(p))
+            if 'signup.js' in t: self.assertIn('signup.js?v=5', t, str(p))
 
 
 if __name__ == '__main__':

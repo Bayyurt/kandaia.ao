@@ -6,6 +6,7 @@ var KEY='kanda-signup-hide',DAYS=30,LATEST='/newsletter/2026-10-19/',ENDPOINT='h
 function hidden(){try{var t=+localStorage.getItem(KEY);return t&&Date.now()-t<DAYS*864e5;}catch(_){return false;}}
 function remember(){try{localStorage.setItem(KEY,String(Date.now()));}catch(_){}}
 var EMAIL=/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/;
+var RISO='.card{color:#12204a!important;background:#fffaf0!important;border:2px solid #12204a!important;border-radius:0!important;box-shadow:6px 6px 0 rgba(255,72,176,.85),-3px -3px 0 rgba(255,232,0,.9)!important;font-family:"Kanda Sans",system-ui,sans-serif!important}h2{color:#12204a!important}h2 b{color:#12204a!important;background:#ffe800;padding:0 4px}.sub{color:#33406a!important}input{background:#f5efe1!important;color:#12204a!important;border:2px solid #12204a!important;border-radius:0!important}input:focus{border-color:#0078bf!important;box-shadow:0 0 0 2px rgba(0,120,191,.25)!important}input[aria-invalid=true]{border-color:#ff48b0!important}.go{color:#12204a!important;background:#ffe800!important;border:2px solid #12204a!important;border-radius:0!important;box-shadow:3px 3px 0 #ff48b0}.x{color:#12204a!important}.x:hover{background:#ffe800!important}.priv{color:#33406a!important}.msg.err{color:#c2187a!important}.msg.ok{color:#005b93!important}.ty-h{color:#005b93!important;text-shadow:none!important}.ty-l a{color:#c2187a!important}';
 var css=':host{all:initial}*{box-sizing:border-box}'+
 '.card{position:fixed;right:16px;bottom:16px;z-index:2147483000;width:300px;max-width:calc(100vw - 24px);font:13px/1.4 "Segoe UI",system-ui,-apple-system,sans-serif;color:#e8f6ff;background:rgba(8,8,22,.96);border:1px solid rgba(0,240,255,.4);border-radius:12px;padding:12px 12px 10px;box-shadow:0 8px 28px rgba(0,0,0,.5),0 0 18px rgba(0,240,255,.14);transform:translateY(12px);opacity:0;transition:transform .2s ease,opacity .2s ease}'+
 '.card.on{transform:none;opacity:1}'+
@@ -26,7 +27,7 @@ var host,root,card,lastFocus;
 function build(){
  host=document.createElement('div');host.id='kanda-signup';
  root=host.attachShadow({mode:'open'});
- root.innerHTML='<style>'+css+'.ty-h{margin:4px 0 2px;color:#00f0ff;font-weight:700;text-shadow:0 0 8px rgba(0,240,255,.6)}.ty-s{margin:0 0 8px;font-size:12px;opacity:.85}.ty-l{display:flex;flex-direction:column;gap:6px;margin:0}.ty-l a{color:#ff2bd6;font:600 12px ui-monospace,Menlo,monospace;text-decoration:none}.ty-l a:hover{text-decoration:underline}</style><section class="card" role="dialog" aria-modal="false" aria-labelledby="ks-t" aria-describedby="ks-d">'+
+ root.innerHTML='<style>'+css+RISO+'.ty-h{margin:4px 0 2px;color:#00f0ff;font-weight:700;text-shadow:0 0 8px rgba(0,240,255,.6)}.ty-s{margin:0 0 8px;font-size:12px;opacity:.85}.ty-l{display:flex;flex-direction:column;gap:6px;margin:0}.ty-l a{color:#ff2bd6;font:600 12px ui-monospace,Menlo,monospace;text-decoration:none}.ty-l a:hover{text-decoration:underline}</style><section class="card" role="dialog" aria-modal="false" aria-labelledby="ks-t" aria-describedby="ks-d">'+
  '<button type="button" class="x" aria-label="Fechar / Close">×</button>'+
  '<h2 id="ks-t">Junte-se à comunidade <b>Kanda IA</b><span class="sr"> / Join the Kanda IA community</span></h2>'+
  '<p class="sub" id="ks-d">Newsletter de IA, novidades e mais. · <span lang="en">Join the community: AI newsletter, updates and more.</span></p>'+

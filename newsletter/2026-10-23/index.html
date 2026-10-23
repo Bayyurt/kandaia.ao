@@ -250,4 +250,4 @@ var stuck=false;function chk(){var s=chips.getBoundingClientRect().top<=0.5&&win
 window.addEventListener('scroll',chk,{passive:true});chk();
 if('IntersectionObserver' in window){var io=new IntersectionObserver(function(es){es.forEach(function(e){if(e.isIntersecting)act(e.target.id)})},{rootMargin:'-45% 0px -50% 0px'});
 buttons.forEach(function(b){var t=document.getElementById(b.getAttribute('data-target'));if(t)io.observe(t)})}})();
-</script><script src="/assets/signup.js?v=4" defer></script></body></html>
+</script><script src="/assets/signup.js?v=5" defer></script></body></html>
