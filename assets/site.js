@@ -61,3 +61,29 @@ if(topWrap&&!document.querySelector('.k-chrome')){
 let saved=null;try{saved=localStorage.getItem('kanda-lang');}catch(_){}
 setLanguage(saved==='en'?'en':'pt-AO');
 })();
+
+/* Luanda weather strip — ambient, fail silent */
+(function(){
+ const hdr=document.querySelector('header.top');
+ if(!hdr||document.querySelector('.wx-strip'))return;
+ const el=document.createElement('p');
+ el.className='wx-strip';
+ el.setAttribute('role','status');
+ el.setAttribute('title','Open-Meteo');
+ el.hidden=true;
+ hdr.insertBefore(el,hdr.firstChild);
+ const WMO={0:['céu limpo','clear sky'],1:['principalmente limpo','mainly clear'],2:['parcialmente nublado','partly cloudy'],3:['nublado','overcast'],45:['nevoeiro','fog'],48:['nevoeiro com geada','depositing rime fog'],51:['garoa fraca','light drizzle'],61:['chuva fraca','slight rain'],63:['chuva moderada','moderate rain'],65:['chuva forte','heavy rain'],80:['aguaceiros fracos','slight rain showers'],95:['trovoada','thunderstorm']};
+ const url='https://api.open-meteo.com/v1/forecast?latitude=-8.84&longitude=13.23&current=temperature_2m,weather_code&timezone=Africa%2FLuanda';
+ fetch(url).then(r=>{if(!r.ok)throw new Error('wx');return r.json()}).then(d=>{
+  const cur=(d&&d.current)||{};
+  const temp=cur.temperature_2m;
+  if(temp==null)return;
+  const code=Number(cur.weather_code||0);
+  const pair=WMO[code]||['código '+code,'code '+code];
+  const ptT=String(temp).replace('.',',');
+  const enT=String(temp);
+  el.innerHTML='<span class="pt">Luanda · '+ptT+'°C · '+pair[0]+'</span><span class="en">Luanda · '+enT+'°C · '+pair[1]+'</span><span class="wx-src" aria-hidden="true"> · Open-Meteo</span>';
+  el.hidden=false;
+  el.classList.add('is-on');
+ }).catch(function(){/* fail silent */});
+})();

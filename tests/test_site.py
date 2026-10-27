@@ -93,7 +93,7 @@ class MultipageSite(unittest.TestCase):
         path = ROOT / 'comunidade/index.html'
         self.assertTrue(path.exists())
         html = path.read_text()
-        self.assertIn('https://www.instagram.com/kanda.ia.ao/', html)
+        self.assertIn('https://www.instagram.com/kandaia.ao/', html)
         self.assertIn('Em preparação', html)
         self.assertIn('mailto:info@kandaia.ao?subject=', html)
         tree = ET.parse(ROOT / 'sitemap.xml')

@@ -25,7 +25,7 @@ The original single-file design and the intermediate educational landing page re
 
 Edit the relevant route's `index.html`; update common navigation/footer consistently across all eight pages. Reuse `assets/site.css` and `assets/site.js`. New content needs both `.pt` and `.en` text. Keep each page's title, description, canonical, social metadata and sitemap entry accurate.
 
-Instagram: https://www.instagram.com/kanda.ia.ao/. Contact: info@kandaia.ao. Add no Discord invitation until the server exists and its link is verified. Do not promise unpublished schedules, events, libraries or client results.
+Instagram: https://www.instagram.com/kandaia.ao/. Contact: info@kandaia.ao. Add no Discord invitation until the server exists and its link is verified. Do not promise unpublished schedules, events, libraries or client results.
 
 ## Test
 
