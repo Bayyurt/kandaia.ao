@@ -1,67 +1,66 @@
-"""Popup browser check. Network to formsubmit is intercepted (never hits live endpoint).
+"""Signup pop-up browser check (Kanda avatar + speech bubble).
+FormSubmit is intercepted: nothing reaches the live endpoint.
 Usage: python tests/browser_signup.py [--screenshots DIR]"""
 import argparse, functools, http.server, os, threading, json
 from pathlib import Path
 from playwright.sync_api import sync_playwright
 ROOT = Path(__file__).resolve().parents[1]
+SR = "document.querySelector('#kanda-signup')"
 class Q(http.server.SimpleHTTPRequestHandler):
-    def log_message(self,*a): pass
+    def log_message(self, *a): pass
 def run(base, shots):
-    posts=[]
+    posts = []
     with sync_playwright() as p:
-        b=p.chromium.launch(executable_path=os.environ.get('CHROMIUM_EXECUTABLE','/usr/bin/chromium'))
-        def ctx(w,h):
-            c=b.new_context(viewport={'width':w,'height':h},reduced_motion='reduce')
-            c.route('https://formsubmit.co/**',lambda r:(posts.append(r.request.post_data_json),r.fulfill(status=200,content_type='application/json',body='{"success":"true"}')))
+        b = p.chromium.launch(executable_path=os.environ.get('CHROMIUM_EXECUTABLE', '/usr/bin/chromium'), args=['--no-sandbox'])
+        def ctx(w, h, rm='reduce'):
+            c = b.new_context(viewport={'width': w, 'height': h}, reduced_motion=rm)
+            c.route('https://formsubmit.co/**', lambda r: (posts.append(r.request.post_data_json),
+                    r.fulfill(status=200, content_type='application/json', body='{"success":"true"}')))
             return c
-        c=ctx(1280,800); pg=c.new_page(); errs=[]; pg.on('pageerror',lambda e:errs.append(str(e)))
-        pg.clock.install()
-        pg.goto(base+'newsletter/2026-10-19/')
-        card=pg.locator('#kanda-signup .card')
-        assert card.count()==0
-        pg.clock.run_for(3500); pg.wait_for_timeout(400)
-        assert card.is_visible()
-        for s in ['#ks-n','#ks-c','#ks-h']: assert pg.locator('#kanda-signup '+s).count()==1
-        assert pg.locator('#kanda-signup #ks-h').bounding_box()['x']<-1000
-        if shots: pg.screenshot(path=str(shots/'signup-desktop.png'))
-        pg.keyboard.press('Escape'); pg.clock.run_for(500)
-        assert not card.is_visible()
-        assert pg.evaluate("localStorage.getItem('kanda-signup-hide')")
-        pg.reload(); pg.clock.run_for(20000); pg.wait_for_timeout(200)
-        assert pg.locator('#kanda-signup').count()==0, 'should stay hidden 30 days'
-        # submit flow on fresh context
-        c2=ctx(390,844); m=c2.new_page(); m.goto(base+'newsletter/2026-10-19/')
-        m.evaluate('window.scrollTo(0,document.documentElement.scrollHeight)'); m.wait_for_timeout(400)
-        mc=m.locator('#kanda-signup .card'); assert mc.is_visible()
-        box=mc.bounding_box(); assert box['width']>=389 and abs(box['y']+box['height']-844)<2 and box['height']<=0.35*844, box
-        if shots: m.screenshot(path=str(shots/'signup-mobile.png'))
-        m.locator('#ks-n').fill('Ana'); m.locator('#ks-c').fill('abc'); m.locator('.go').click()
-        assert 'inválido' in m.locator('.msg').inner_text() and not posts
-        m.locator('#ks-c').fill('+244 923 456 789'); m.locator('.go').click()
-        assert 'inválido' in m.locator('.msg').inner_text() and not posts, 'phone rejected'
-        m.locator('#ks-c').fill('ana@example.com'); m.locator('.go').click()
-        m.wait_for_function("!!document.querySelector('#kanda-signup').shadowRoot.querySelector('.ty')")
-        tyt=m.evaluate("document.querySelector('#kanda-signup').shadowRoot.querySelector('.ty').innerHTML")
-        assert 'Enviámos um email de boas-vindas' in tyt and '/aprender/' in tyt and '/newsletter/2026-10-19/' in tyt
-        if shots: m.screenshot(path=str(shots/'signup-thanks-mobile.png'))
-        assert posts and posts[0]['email']=='ana@example.com' and 'telefone' not in posts[0] and posts[0]['_subject']=='Nova inscrição comunidade Kanda IA'
-        # home: auto-opens after 3 s on main pages too; footer link reopens after close
-        c3=ctx(1280,800); h=c3.new_page(); h.clock.install(); h.goto(base); h.clock.run_for(2500)
-        assert h.locator('#kanda-signup').count()==0 or not h.locator('#kanda-signup .card').is_visible(), 'not before 3 s'
-        h.clock.run_for(1000); h.wait_for_timeout(400)
-        assert h.locator('#kanda-signup .card').is_visible(), 'home auto-open at 3 s'
-        h.evaluate("window.KandaSignup.close()"); h.wait_for_timeout(400)
-        h.locator('footer [data-signup-open]').click(); h.wait_for_timeout(400)
-        assert h.locator('#kanda-signup .card').is_visible()
-        assert h.evaluate("document.querySelector('#kanda-signup').shadowRoot.activeElement.id")=='ks-n'
-        if shots: h.screenshot(path=str(shots/'signup-home.png'))
+        def is_open(pg):
+            return pg.evaluate(f"!!{SR} && {SR}.classList.contains('open')")
+        c = ctx(1280, 800); pg = c.new_page(); errs = []; pg.on('pageerror', lambda e: errs.append(str(e)))
+        pg.clock.install(); pg.goto(base + 'newsletter/'); pg.wait_for_load_state('load')
+        pg.clock.run_for(5000); pg.wait_for_timeout(100)
+        assert not is_open(pg), 'not before ~9 s'
+        pg.clock.run_for(4500); pg.wait_for_timeout(300)
+        assert is_open(pg), 'auto-open at ~9 s'
+        assert pg.evaluate(f"{SR}.shadowRoot.querySelector('[role=dialog]').getAttribute('aria-labelledby')") == 'kp-t'
+        if shots: pg.screenshot(path=str(shots / 'signup-desktop.png'))
+        pg.keyboard.press('Escape'); pg.clock.run_for(1200); pg.wait_for_timeout(100)
+        assert not is_open(pg)
+        assert pg.evaluate("localStorage.getItem('kanda-pop-dismiss')")
+        pg.reload(); pg.wait_for_load_state('load'); pg.clock.run_for(30000); pg.wait_for_timeout(200)
+        assert not is_open(pg), 'stays hidden after dismiss'
+        # phone: 40% scroll opens it, tap outside dismisses, submit flow
+        c2 = ctx(390, 844); m = c2.new_page(); m.goto(base); m.wait_for_load_state('load'); m.wait_for_timeout(2600)
+        m.evaluate('window.scrollTo(0,document.documentElement.scrollHeight)'); m.wait_for_timeout(500)
+        assert is_open(m), 'scroll trigger'
+        bx = m.evaluate(f"(()=>{{const r={SR}.shadowRoot.querySelector('.bub').getBoundingClientRect();return [r.width,r.height,r.left]}})()")
+        assert bx[0] <= 390 - 20 and bx[1] < 0.45 * 844 and bx[2] >= 8, bx
+        m.locator('#kp-e').fill('abc'); m.locator('#kanda-signup .go').click()
+        assert 'não parece certo' in m.locator('#kanda-signup .msg').inner_text() and not posts
+        m.locator('#kp-e').fill('ana@example.com'); m.locator('#kanda-signup .go').click()
+        m.wait_for_function(f"{SR}.classList.contains('ok')")
+        assert 'Feito.' in m.locator('#kanda-signup .done').inner_text()
+        if shots: m.screenshot(path=str(shots / 'signup-mobile-done.png'))
+        d = posts[0]
+        assert d['email'] == 'ana@example.com' and d['_subject'] == 'Nova inscrição comunidade Kanda IA' and 'nome' in d and d['pagina'] == '/'
+        assert m.evaluate("localStorage.getItem('kanda-pop-done')") == '1'
+        # footer link reopens manually and focuses the email field
+        c3 = ctx(1280, 800); h = c3.new_page(); h.goto(base + '?popup=off'); h.wait_for_load_state('load')
+        h.locator('footer [data-signup-open]').click(); h.wait_for_timeout(500)
+        assert is_open(h)
+        assert h.evaluate(f"{SR}.shadowRoot.activeElement.id") == 'kp-e'
+        h.mouse.click(200, 300); h.wait_for_timeout(300)
+        assert not is_open(h), 'tap outside closes'
         assert not errs, errs
-        print(json.dumps({'result':'PASS','posts_intercepted':len(posts)}))
+        print(json.dumps({'result': 'PASS', 'posts_intercepted': len(posts)}))
         b.close()
-if __name__=='__main__':
-    a=argparse.ArgumentParser(); a.add_argument('--screenshots',type=Path); a=a.parse_args()
-    if a.screenshots: a.screenshots.mkdir(parents=True,exist_ok=True)
-    s=http.server.ThreadingHTTPServer(('127.0.0.1',0),functools.partial(Q,directory=str(ROOT)))
-    threading.Thread(target=s.serve_forever,daemon=True).start()
-    try: run('http://127.0.0.1:%d/'%s.server_port,a.screenshots)
+if __name__ == '__main__':
+    a = argparse.ArgumentParser(); a.add_argument('--screenshots', type=Path); a = a.parse_args()
+    if a.screenshots: a.screenshots.mkdir(parents=True, exist_ok=True)
+    s = http.server.ThreadingHTTPServer(('127.0.0.1', 0), functools.partial(Q, directory=str(ROOT)))
+    threading.Thread(target=s.serve_forever, daemon=True).start()
+    try: run('http://127.0.0.1:%d/' % s.server_port, a.screenshots)
     finally: s.shutdown()
