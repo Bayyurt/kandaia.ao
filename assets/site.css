@@ -274,3 +274,19 @@ header.top .logo .rlogo,footer .logo .rlogo{background:var(--paper);border-radiu
 .wx-strip.is-on{display:block}
 .wx-strip .wx-src{opacity:.55;font-weight:500}
 @media(max-width:760px){.wx-strip{font-size:10.5px;padding:2px 10px}}
+
+
+/* PT | EN toggle — same style as newsletter edition 18 */
+header.top .lang{display:inline-flex;align-items:center;gap:0;margin-left:auto;background:var(--navy);border:2px solid var(--yel);box-shadow:2px 2px 0 var(--pink);padding:0;opacity:1;flex:none}
+header.top .lang button{font:700 13px/1 var(--mono);min-width:44px;min-height:40px;border:0!important;background:transparent!important;color:#fff!important;cursor:pointer;padding:0 11px;letter-spacing:.08em;border-radius:0;box-shadow:none!important}
+header.top .lang button[aria-pressed=true]{background:var(--yel)!important;color:var(--navy)!important;border-color:var(--yel)!important}
+header.top .lang button:focus-visible{outline:2px solid var(--pink);outline-offset:2px}
+header.top .lang .lang-sep{color:var(--yel);font:700 13px var(--mono);padding:0 1px;user-select:none;border:0;background:var(--navy)}
+@media(max-width:899px){
+ header.top .bar{flex-wrap:wrap}
+ header.top .lang{order:5;flex:0 0 100%;justify-content:center;margin:0 0 8px;padding:0;background:transparent;border:0;box-shadow:none;position:relative;z-index:8}
+ header.top .lang button{min-width:48px;min-height:40px;border:2px solid var(--yel)!important;box-shadow:2px 2px 0 var(--pink)!important}
+ header.top .lang button#b-pt,header.top .lang button[data-l=pt]{border-right:0!important;box-shadow:none!important}
+ header.top .lang button#b-en,header.top .lang button[data-l=en]{border-left:0!important}
+ header.top .lang .lang-sep{border-top:2px solid var(--yel);border-bottom:2px solid var(--yel);background:var(--navy);align-self:stretch;display:flex;align-items:center}
+}

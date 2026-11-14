@@ -16,20 +16,61 @@ function updatePrompt(){
  output.textContent=fields.map((f,i)=>labels[i]+': '+(f.value.trim()||fallback)).join('\n\n')+'\n\n'+reminder;
  status.textContent='';
 }
-function setLanguage(lang){
+function isEnPath(p){
+ p=(p||'').replace(/\/+$/,'')||'/';
+ return /\/en$/.test(p)||/\/en\/index\.html$/.test(p);
+}
+function pathLang(){
+ try{
+  if(isEnPath(location.pathname))return 'en';
+  const q=new URLSearchParams(location.search).get('lang');
+  if(q==='en')return 'en';
+  if(q==='pt'||q==='pt-AO')return 'pt-AO';
+ }catch(_){}
+ return null;
+}
+function syncUrl(l){
+ try{
+  const u=new URL(location.href);
+  const p=u.pathname.replace(/\/+$/,'')||'/';
+  const onEn=isEnPath(p);
+  if(l==='en'&&!onEn){
+   u.pathname=(p==='/'?'':p)+'/en/';
+   history.replaceState(null,'',u.pathname+u.search+u.hash);
+  }else if(l!=='en'&&onEn){
+   let np=p.replace(/\/en(\/index\.html)?$/,'/');
+   if(np!=='/'&&!np.endsWith('/'))np+='/';
+   u.pathname=np;
+   history.replaceState(null,'',u.pathname+u.search+u.hash);
+  }
+  if(u.searchParams.has('lang')){
+   u.searchParams.delete('lang');
+   history.replaceState(null,'',u.pathname+(u.searchParams.toString()?'?'+u.searchParams:'')+u.hash);
+  }
+ }catch(_){}
+}
+function setLanguage(lang,push){
+ if(lang==='pt')lang='pt-AO';
+ if(lang!=='en')lang='pt-AO';
  root.lang=lang;
+ root.setAttribute('data-lang',lang==='en'?'en':'pt');
  if(pt)pt.setAttribute('aria-pressed',String(lang!=='en'));
  if(en)en.setAttribute('aria-pressed',String(lang==='en'));
+ const g=document.querySelector('.lang');
+ if(g)g.setAttribute('aria-label',lang==='en'?'Language':'Idioma');
  const nav=document.querySelector('nav');
  if(nav)nav.setAttribute('aria-label',lang==='en'?'Main navigation':'Navegação principal');
  const title=document.body.dataset[lang==='en'?'titleEn':'titlePt'];
  if(title)document.title=title;
+ const logo=document.getElementById('logo');
+ if(logo)logo.setAttribute('aria-label',lang==='en'?'Kanda IA logo: drag or use the arrow keys':'Logótipo Kanda IA: arrasta ou usa as setas');
  if(hasBuilder&&!touched)fields.forEach(f=>{f.value=f.dataset[lang==='en'?'en':'pt'];});
  updatePrompt();
- try{localStorage.setItem('kanda-lang',lang);}catch(_){}
+ try{localStorage.setItem('kanda-lang',lang==='en'?'en':'pt');}catch(_){}
+ if(push!==false)syncUrl(lang==='en'?'en':'pt');
 }
-if(pt)pt.addEventListener('click',()=>setLanguage('pt-AO'));
-if(en)en.addEventListener('click',()=>setLanguage('en'));
+if(pt)pt.addEventListener('click',()=>setLanguage('pt-AO',true));
+if(en)en.addEventListener('click',()=>setLanguage('en',true));
 if(hasBuilder){
  fields.forEach(f=>f.addEventListener('input',()=>{touched=true;updatePrompt();}));
  document.getElementById('copy-prompt').addEventListener('click',async()=>{
@@ -58,8 +99,9 @@ if(topWrap&&!document.querySelector('.k-chrome')){
  c.innerHTML='<span>KANDA IA — '+seg+'</span><span class="k-live">● ONLINE</span>';
  topWrap.appendChild(c);
 }
-let saved=null;try{saved=localStorage.getItem('kanda-lang');}catch(_){}
-setLanguage(saved==='en'?'en':'pt-AO');
+let saved=pathLang();
+if(!saved){try{saved=localStorage.getItem('kanda-lang')||'pt';}catch(_){saved='pt';}}
+setLanguage(saved==='en'?'en':'pt-AO',true);
 })();
 
 /* Luanda weather strip — ambient, fail silent */
